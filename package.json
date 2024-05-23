@@ -1,0 +1,11 @@
+{
+  "name": "coupquiz-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "live-server --port=8080",
+    "build": "echo 'No build step required'"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}
