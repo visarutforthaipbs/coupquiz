@@ -5,7 +5,7 @@ var time = setInterval(myTimer, 1000);
 function myTimer() {
   document.getElementById("timer").innerHTML = sec;
   sec--;
-  if (sec == -1) {
+  if (sec === -1) {
     clearInterval(time);
     alert("หมดเวลาจ้า!!!");
   }
@@ -25,7 +25,6 @@ Quiz.prototype.guess = function (answer) {
   if (this.getQuestionIndex().isCorrectAnswer(answer)) {
     this.score++;
   }
-
   this.questionIndex++;
 };
 
@@ -81,11 +80,25 @@ function showProgress() {
     quiz.questions.length;
 }
 
+function getScoreText(score) {
+  if (score >= 8 && score <= 10) {
+    return "จำฝังใจ";
+  } else if (score >= 5 && score <= 7) {
+    return "เกือบลืม";
+  } else if (score >= 0 && score <= 4) {
+    return "เกิดไม่ทัน";
+  } else {
+    return "คะแนนไม่ถูกต้อง";
+  }
+}
+
 function showScores() {
   var gameOverHTML = "<h1>คุณจำได้ดีแค่ไหน</h1>";
-  gameOverHTML += "<h2 id='score'> คะแนน: " + quiz.score + "</h2>";
+  var scoreText = getScoreText(quiz.score);
   gameOverHTML +=
-    "<button id='facebookShareButton'>แชร์คะแนนนี้บน facebook</button>";
+    "<h2 id='score'> คะแนน: " + quiz.score + " - " + scoreText + "</h2>";
+  gameOverHTML +=
+    "<button id='facebookShareButton'>แชร์คะแนนนี้บน Facebook</button>";
   var element = document.getElementById("quiz");
   element.innerHTML = gameOverHTML;
 
@@ -98,18 +111,6 @@ function showScores() {
 function shareScoreOnFacebook(score) {
   var shareUrl = window.location.href;
   var shareText = "I scored " + score + " in the Pop Quiz!";
-  var canvas = document.createElement("canvas");
-  var context = canvas.getContext("2d");
-
-  canvas.width = 600;
-  canvas.height = 200;
-  context.fillStyle = "#FFF";
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  context.fillStyle = "#000";
-  context.font = "30px Arial";
-  context.fillText("I scored " + score + " in the Pop Quiz!", 50, 100);
-
-  var dataUrl = canvas.toDataURL("image/png");
 
   var facebookShareUrl =
     "https://www.facebook.com/sharer/sharer.php?u=" +
@@ -117,17 +118,10 @@ function shareScoreOnFacebook(score) {
     "&quote=" +
     encodeURIComponent(shareText);
 
-  var newWindow = window.open(facebookShareUrl, "_blank");
-  if (newWindow) {
-    newWindow.onload = function () {
-      var img = new Image();
-      img.src = dataUrl;
-      newWindow.document.body.appendChild(img);
-    };
-  }
+  window.open(facebookShareUrl, "_blank");
 }
 
-//question
+// questions
 var questions = [
   new Question(
     "ใครเป็นผู้นำการรัฐประหารปี 2557 ในประเทศไทย?",
