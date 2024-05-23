@@ -1,4 +1,4 @@
-// timer
+// Timer
 var sec = 75;
 var time = setInterval(myTimer, 1000);
 
@@ -11,6 +11,7 @@ function myTimer() {
   }
 }
 
+// Quiz and Question classes
 function Quiz(questions) {
   this.score = 0;
   this.questions = questions;
@@ -42,15 +43,14 @@ Question.prototype.isCorrectAnswer = function (choice) {
   return this.answer === choice;
 };
 
+// Functions to populate the quiz
 function populate() {
   if (quiz.isEnded()) {
     showScores();
   } else {
-    // show question
     var element = document.getElementById("question");
     element.innerHTML = quiz.getQuestionIndex().text;
 
-    // show options
     var choices = quiz.getQuestionIndex().choices;
     for (var i = 0; i < choices.length; i++) {
       var element = document.getElementById("choice" + i);
@@ -80,6 +80,7 @@ function showProgress() {
     quiz.questions.length;
 }
 
+// Function to get score text
 function getScoreText(score) {
   if (score >= 8 && score <= 10) {
     return "จำฝังใจ";
@@ -92,6 +93,7 @@ function getScoreText(score) {
   }
 }
 
+// Function to show scores
 function showScores() {
   var gameOverHTML = "<h1>คุณจำได้ดีแค่ไหน</h1>";
   var scoreText = getScoreText(quiz.score);
@@ -108,20 +110,49 @@ function showScores() {
   };
 }
 
+// Function to share score on Facebook
 function shareScoreOnFacebook(score) {
-  var shareUrl = window.location.href;
-  var shareText = "I scored " + score + " in the Pop Quiz!";
+  var scoreText = getScoreText(score);
+  var shareText = "I scored " + score + " in the Pop Quiz! " + scoreText;
 
-  var facebookShareUrl =
-    "https://www.facebook.com/sharer/sharer.php?u=" +
-    encodeURIComponent(shareUrl) +
-    "&quote=" +
-    encodeURIComponent(shareText);
+  // Generate the image
+  var canvas = document.createElement("canvas");
+  var context = canvas.getContext("2d");
 
-  window.open(facebookShareUrl, "_blank");
+  canvas.width = 600;
+  canvas.height = 315;
+  context.fillStyle = "#FFF";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "#000";
+  context.font = "30px Arial";
+  context.fillText("I scored " + score + " in the Pop Quiz!", 50, 100);
+  context.fillText(scoreText, 50, 150);
+
+  var dataUrl = canvas.toDataURL("image/png");
+
+  // Upload the image to the server
+  fetch("https://your-heroku-app.herokuapp.com/upload", {
+    method: "POST",
+    body: JSON.stringify({ image: dataUrl }),
+    headers: { "Content-Type": "application/json" },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      var imageUrl = data.url;
+      var facebookShareUrl =
+        "https://www.facebook.com/sharer/sharer.php?u=" +
+        encodeURIComponent(imageUrl) +
+        "&quote=" +
+        encodeURIComponent(shareText);
+
+      window.open(facebookShareUrl, "_blank");
+    })
+    .catch((error) => {
+      console.error("Error uploading image:", error);
+    });
 }
 
-// questions
+// Questions
 var questions = [
   new Question(
     "ใครเป็นผู้นำการรัฐประหารปี 2557 ในประเทศไทย?",
@@ -210,8 +241,8 @@ var questions = [
   ),
 ];
 
-// make quiz
+// Make quiz
 var quiz = new Quiz(questions);
 
-// show quiz
+// Show quiz
 populate();
